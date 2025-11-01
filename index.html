@@ -10,7 +10,7 @@
       --tile:#22252b;
       --tile-size: 160px;
       --img-percent: 50%;
-      --gap: 2px;
+      --gap: 0px;
       --ratio-w:2.35;
       --ratio-h:3;
     }
@@ -30,6 +30,11 @@
       gap:12px;
       padding:0 20px;
       border-bottom:1px solid var(--gridline);
+    }
+    .logo{
+      width:32px;
+      height:32px;
+      display:block;
     }
     .brand{
       display:flex;
@@ -51,6 +56,7 @@
       display:grid;
       grid-template-columns: repeat(6, var(--tile-size));
       gap: var(--gap);
+      padding: 1px;
       margin: 24px auto 48px;
       justify-content:center;
     }
@@ -58,6 +64,9 @@
       width: var(--tile-w);
       aspect-ratio: var(--ratio-w) / var(--ratio-h);
       background: var(--tile);
+      border: 1px solid var(--gridline);
+      border-left:0;
+      border-top:0;
       border-radius: 2px;
       display:flex;
       align-items:center;
@@ -65,7 +74,7 @@
       overflow:hidden;
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,.06),
-        inset 0 -1px 2 rgba(0,0,0,.45);
+        inset 0 -1px 2px rgba(0,0,0,.45);
       border: 1px solid var(--gridline);
     }
     .tile img{
@@ -92,12 +101,8 @@
 <body>
   <header class="topbar">
     <a class="brand" href="/">
-      <svg viewBox="0 0 48 48" aria-hidden="true">
-        <circle cx="24" cy="24" r="22" fill="#fff"/>
-        <rect x="14" y="13" width="20" height="4" rx="2" fill="#101214"/>
-        <rect x="22" y="17" width="4" height="18" rx="2" fill="#101214"/>
-      </svg>
-      <span class="title">Smartisan Icon Archive</span>
+      <img class="logo" src="smartisan_logo.png" alt="Smartisan Logo">
+      <span class="title">smartisan icon archive</span>
     </a>
   </header>
 
