@@ -1,2 +1,16 @@
 # Smartisan-Archive
-Smartisan Archive is dedicated to collecting and preserving the design artifacts of Smartisan — its icons, interface styles, and product evolutions. A place where the spirit of good design continues to live on.  Smartisan Archive 致力於整理並保存 Smartisan 的設計遺產：包含圖標、介面風格與產品演進。讓曾經的設計精神，繼續被看見。
+
+## Introduction
+Smartisan Archive is a comprehensive historical archive dedicated to collecting, organizing, and preserving the legacy of the former smartphone brand Smartisan — including its redesigned app icons, unique UI aesthetics, industrial design, software experiences, hardware products, marketing materials, and the stories of the people behind it.
+
+## Website
+(Working in Progress)
+
+## Sections
+- Icon Archive
+- UI/UX Design
+
+## Disclaimer
+Smartisan is a registered trademark of Smartisan Technology Co.,Ltd.
+This project is a non-commercial, fan-made archival effort intended for preservation and
+All rights to original designs belong to their respective owners.
