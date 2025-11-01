@@ -139,7 +139,6 @@
     /** ===== CONFIG ===== **/
     const PAGE_SIZE = 18;
     const GRID_SELECTOR = '.grid';
-    const STORAGE_KEY = 'smartisan_icon_order_v1';
 
     const ICONS = [
       'icons/acfun.png', 'icons/adobe_reader.png', 'icons/alipay_1.png', 
@@ -218,13 +217,7 @@
     }
 
     function getIconOrder(){
-      const cached = sessionStorage.getItem(STORAGE_KEY);
-      if (cached){
-        try { return JSON.parse(cached); } catch(e){}
-      }
-      const order = shuffle(ICONS);
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(order));
-      return order;
+      return shuffle(ICONS);
     }
 
     function renderPage(page=1){
