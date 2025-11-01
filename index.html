@@ -85,6 +85,8 @@
       object-fit: contain;
       image-rendering: auto;
     }
+    .tile.is-empty{
+    }
 
     .wrap{
       overflow-x:auto; 
@@ -243,23 +245,33 @@
       history.replaceState(null, '', url);
     }
 
-    function renderPager(page, totalPages){
-      let pager = document.querySelector('.pager');
-      if (!pager){
-        pager = document.createElement('nav');
-        pager.className = 'pager';
-        document.querySelector('.stage')?.appendChild(pager);
+    function renderPage(page = 1){
+      const grid = document.querySelector(GRID_SELECTOR);
+      if(!grid) return;
+    
+      const order = getIconOrder();
+      const total = order.length;
+      const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      page = Math.min(Math.max(1, page), totalPages);
+    
+      const start = (page - 1) * PAGE_SIZE;
+      
+      const tiles = [];
+      for (let i = 0; i < PAGE_SIZE; i++){
+        const src = order[start + i];
+        if (src){
+          tiles.push(`<div class="tile"><img src="${src}" alt="" loading="lazy"></div>`);
+        }else{
+          tiles.push(`<div class="tile is-empty" aria-hidden="true"></div>`);
+        }
       }
-      pager.innerHTML = '';
-      for (let i = 1; i <= totalPages; i++){
-        const dot = document.createElement('button');
-        dot.type = 'button';
-        dot.className = 'dot' + (i === page ? ' active' : '');
-        dot.setAttribute('aria-label', `Go to page ${i}`);
-        if (i === page) dot.setAttribute('aria-current', 'page');
-        dot.onclick = () => renderPage(i);
-        pager.appendChild(dot);
-      }
+      grid.innerHTML = tiles.join('');
+    
+      renderPager(page, totalPages);
+    
+      const url = new URL(location);
+      url.searchParams.set('page', String(page));
+      history.replaceState(null, '', url);
     }
 
     function init(){
