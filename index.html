@@ -2,34 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Smartisan Archive</title>
+  <title>Smartisan Icon Archive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
       --bg:#181a1e;
       --tile:#22252b;
       --tile-size: 160px;
-      --img-scale: 0.3;
+      --img-percent: 50%;
       --gap: 2px;
       --ratio-w:2.35;
       --ratio-h:3;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Inter,sans-serif;color:#eaeaea}
-    header{padding:20px;text-align:center}
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family:system-ui,-apple-system,Segoe UI,Inter,sans-serif;
+      color:#eaeaea}
+    header{
+      padding:20px;text-align:center}
+    .topbar{
+      height:64px;
+      background:#101214;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:0 20px;
+      border-bottom:1px solid var(--gridline);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+      color:inherit;
+    }
+    .brand svg{
+      width:32px;
+      height:32px;
+    }
+    .brand .title{
+      font-size:18px;
+      font-weight:600;
+      letter-spacing:.2px;
+    }
     .grid{
       display:grid;
       grid-template-columns: repeat(6, var(--tile-size));
       gap: var(--gap);
-      width: calc(6 * var(--tile-w) + 5 * var(--gap));
-      margin: 0 auto 48px;
+      margin: 24px auto 48px;
       justify-content:center;
     }
     .tile{
       width: var(--tile-w);
       aspect-ratio: var(--ratio-w) / var(--ratio-h);
       background: var(--tile);
-      border-radius: 14px;
       border-radius: 2px;
       display:flex;
       align-items:center;
@@ -37,25 +65,40 @@
       overflow:hidden;
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,.06),
-        inset 0 -1px 0 rgba(0,0,0,.45);
+        inset 0 -1px 2 rgba(0,0,0,.45);
+      border: 1px solid var(--gridline);
     }
     .tile img{
-      max-width: 50% !important;
-      max-height: 50% !important;
+      max-width: var(--img-percent) !important;
+      max-height: var(--img-percent) !important;
       width: auto !important;
       height: auto !important;
       object-fit: contain;
       image-rendering: auto;
     }
 
-    .wrap{overflow-x:auto; padding: 0 12px;}
-    .stage{min-width: calc(6 * var(--tile-w) + 5 * var(--gap)); margin: 0 auto;}
-    footer{color:#8a8a8a;font-size:12px;text-align:center;padding:24px}
+    .wrap{
+      overflow-x:auto; 
+      padding: 0 12px;}
+    .stage{
+      margin: 0 auto;}
+    footer{
+      color:#8a8a8a;
+      font-size:12px;
+      text-align:center;padding:24px}
   </style>
 </head>
+  
 <body>
-  <header>
-    <h1 style="margin:0;font-size:22px;font-weight:600">Smartisan Icon Archive</h1>
+  <header class="topbar">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="#fff"/>
+        <rect x="14" y="13" width="20" height="4" rx="2" fill="#101214"/>
+        <rect x="22" y="17" width="4" height="18" rx="2" fill="#101214"/>
+      </svg>
+      <span class="title">Smartisan Icon Archive</span>
+    </a>
   </header>
 
   <div class="wrap">
