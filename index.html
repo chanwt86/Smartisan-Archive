@@ -8,9 +8,11 @@
     :root {
       --bg:#181a1e;
       --tile:#22252b;
-      --tile-size: 140px;
+      --tile-size: 160px;
       --img-scale: 0.64;
       --gap: 12px;
+      --ratio-w:2.35;
+      --ratio-h:3;
     }
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Inter,sans-serif;color:#eaeaea}
@@ -18,13 +20,14 @@
     .grid{
       display:grid;
       grid-template-columns: repeat(6, var(--tile-size));
-      grid-auto-rows: var(--tile-size);
       gap: var(--gap);
-      width: calc(6 * var(--tile-size) + 5 * var(--gap));
+      width: calc(6 * var(--tile-w) + 5 * var(--gap));
       margin: 0 auto 48px;
       justify-content:center;
     }
     .tile{
+      width: var(--tile-w);
+      aspect-ratio: var(--ratio-w) / var(--ratio-h);
       background: var(--tile);
       border-radius: 14px;
       display:flex;
@@ -36,14 +39,14 @@
         inset 0 -1px 0 rgba(0,0,0,.45);
     }
     .tile img{
-      width: calc(var(--tile-size) * var(--img-scale));
-      height: calc(var(--tile-size) * var(--img-scale));
+      width: calc(var(--tile-w) * var(--img-scale));
+      height: calc((var(--tile-w) * var(--img-scale)) * (var(--ratio-h) / var(--ratio-w)));
       object-fit: contain;
       image-rendering: auto;
     }
 
     .wrap{overflow-x:auto; padding: 0 12px;}
-    .stage{min-width: calc(6 * var(--tile-size) + 5 * var(--gap)); margin: 0 auto;}
+    .stage{min-width: calc(6 * var(--tile-w) + 5 * var(--gap)); margin: 0 auto;}
     footer{color:#8a8a8a;font-size:12px;text-align:center;padding:24px}
   </style>
 </head>
