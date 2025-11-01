@@ -23,12 +23,12 @@
     header{
       padding:20px;text-align:center}
     .topbar{
-      height:64px;
+      height:84px;
       background:#101214;
       display:flex;
       align-items:center;
       gap:12px;
-      padding:0 30px;
+      padding:0 50px;
       border-bottom:1px solid var(--gridline);
     }
     .logo{
@@ -109,30 +109,6 @@
   <div class="wrap">
     <main class="stage">
       <section class="grid">
-        <div class="tile"><img src="icons/appmarket.png"           alt=""/></div>
-        <div class="tile"><img src="icons/camera.png"    alt=""/></div>
-        <div class="tile"><img src="icons/gallery.png"          alt=""/></div>
-
-        <div class="tile"><img src="icons/sms.png"          alt=""/></div>
-        <div class="tile"><img src="icons/tutorials.png"          alt=""/></div>
-        <div class="tile"><img src="icons/gamecenter.png"          alt=""/></div>
-        
-        <div class="tile"><img src="icons/note.png"        alt=""/></div>
-        <div class="tile"><img src="icons/calendar.png"      alt=""/></div>
-        <div class="tile"><img src="icons/clock.png"       alt=""/></div>
-
-        <div class="tile"><img src="icons/record.png"          alt=""/></div>
-        <div class="tile"><img src="icons/calculator.png"          alt=""/></div>
-        <div class="tile"><img src="icons/browser.png"          alt=""/></div>
-
-        <div class="tile"><img src="icons/music.png"       alt=""/></div>
-        <div class="tile"><img src="icons/settings.png"   alt=""/></div>
-        <div class="tile"><img src="icons/security.png"          alt=""/></div>
-
-        <div class="tile"><img src="icons/documentsui.png"          alt=""/></div>
-        <div class="tile"><img src="icons/phone.png"          alt=""/></div>
-        <div class="tile"><img src="icons/weather.png"          alt=""/></div>
-        
       </section>
     </main>
   </div>
@@ -140,5 +116,152 @@
   <footer>
     Smartisan is a registered trademark of Smartisan Technology Co., Ltd. · Non-commercial archival project.
   </footer>
+
+  <script>
+    /** ===== CONFIG ===== **/
+    const PAGE_SIZE = 18;
+    const GRID_SELECTOR = '.grid';
+    const STORAGE_KEY = 'smartisan_icon_order_v1';
+
+    const ICONS = [
+      'icons/acfun.png', 'icons/adobe_reader.png', 'icons/alipay_1.png', 
+      'icons/alipay.png', 'icons/androidesk.png', 'icons/ankidroid.png',
+      'icons/appmarket.png', 'icons/backup_huawei.png', 'icons/baicizhan.png',
+      'icons/baidu_homework.png', 'icons/baidu_input.png', 'icons/baidu_maps.png',
+      'icons/baidu_tieba.png', 'icons/baidu_wenku.png', 'icons/baidu.png', 
+      'icons/baidunetdisk.png', 'icons/bankabc.png', 'icons/bankcmb.png', 
+      'icons/bilibili.png', 'icons/bilibiliblue.png', 'icons/bing_dict.png', 
+      'icons/bing.png', 'icons/browser.png', 'icons/buttercamera.png', 
+      'icons/calculator.png', 'icons/calendar_google.png', 'icons/calendar_htc.png', 
+      'icons/calendar.png', 'icons/camera.png', 'icons/camera360.png',
+      'icons/candycrash.png', 'icons/chinabank.png', 'icons/chrome_beta.png',
+      'icons/chrome.png', 'icons/chromecast.png', 'icons/clock_google.png', 
+      'icons/clock.png', 'icons/compass.png', 'icons/contacts.png', 
+      'icons/coolapk.png', 'icons/dianping.png', 'icons/dingtalk.png',
+      'icons/documentsui.png', 'icons/dropbox.png', 'icons/duokan_reader.png',
+      'icons/ebay.png', 'icons/eleme.png', 'icons/email.png', 
+      'icons/eyepetizer.png', 'icons/facebook.png', 'icons/farmbank.png',
+      'icons/feedly.png', 'icons/findmyphone_meizu.png', 'icons/fing.png',
+      'icons/firefox_1.png', 'icons/firefox.png', 'icons/fiveeight.png',
+      'icons/flashlight.png', 'icons/fmradio.png', 'icons/gallery.png',
+      'icons/gamecenter.png', 'icons/gboard.png', 'icons/gdrive.png',
+      'icons/gearth.png', 'icons/geoweather.png', 'icons/gmail.png',
+      'icons/gmssettings_1.png', 'icons/gmssettings.png', 'icons/google_maps.png',
+      'icons/google_photos_1.png', 'icons/google_photos.png', 'icons/google.png',
+      'icons/gpgames.png', 'icons/gpinyin.png', 'icons/gpmusic.png',
+      'icons/greenify.png', 'icons/gtranslate.png', 'icons/gtts.png', 
+      'icons/gvideos.png', 'icons/hkvideo.png', 'icons/ifly_input.png',
+      'icons/ims.png', 'icons/ingress.png', 'icons/instagram.png',
+      'icons/iqiyi.png', 'icons/jd.png', 'icons/jdjr.png',
+      'icons/jianshu.png', 'icons/kindle.png', 'icons/kindlefc.png', 
+      'icons/kuaishou.png', 'icons/kugo.png', 'icons/kuwomusic.png',
+      'icons/lock.png', 'icons/magnifier.png', 'icons/minecraft.png', 
+      'icons/missfresh.png', 'icons/miui_shop.png', 'icons/miui_smarthome_1.png',
+      'icons/miui_smarthome.png', 'icons/msoffice.png', 'icons/mt12306.png',
+      'icons/mtwaimai_1.png', 'icons/mtwaimai.png', 'icons/mtxx.png',
+      'icons/music.png', 'icons/myscript_calc.png', 'icons/ncloudmusic.png',
+      'icons/note.png', 'icons/nutstore.png', 'icons/ofo.png', 
+      'icons/onedrive.png', 'icons/paypal.png', 'icons/phone.png',
+      'icons/pinduoduo.png', 'icons/pinterest.png', 'icons/pixiv.png',
+      'icons/plex.png', 'icons/qinput.png', 'icons/qq.png',
+      'icons/qqbrowser.png', 'icons/qqgame.png', 'icons/qqmail.png',
+      'icons/qqmusic.png', 'icons/qqread.png', 'icons/qqsync.png',
+      'icons/quark.png', 'icons/record.png', 'icons/rexplorer.png',
+      'icons/security.png', 'icons/settings.png', 'icons/sf.png',
+      'icons/simcard.png', 'icons/simplenote.png', 'icons/skype.png',
+      'icons/smartisan_bbs.png', 'icons/smartlaunch.png', 'icons/sms.png',
+      'icons/snapseed.png', 'icons/sogou_input.png', 'icons/sogou_maps.png',
+      'icons/sogou_search.png', 'icons/spotify.png', 'icons/sspai.png',
+      'icons/steam.png', 'icons/talkback.png', 'icons/taobao.png',
+      'icons/taptap.png', 'icons/tax.png', 'icons/tencent_edu.png',
+      'icons/tencent_map.png', 'icons/tencent_news.png', 'icons/tencent_video.png',
+      'icons/tiktok.png', 'icons/tmall.png', 'icons/tsm.png',
+      'icons/tutorials.png', 'icons/twitter.png', 'icons/uc.png',
+      'icons/unionpay.png', 'icons/vending.png', 'icons/video.png',
+      'icons/voiceassis.png', 'icons/wallet.png', 'icons/weather.png',
+      'icons/wechat.png', 'icons/weibo.png', 'icons/weishi.png',
+      'icons/weiyun.png', 'icons/wmvideo_1.png', 'icons/wmvideo.png',
+      'icons/woodletter.png', 'icons/wps.png', 'icons/wzry.png',
+      'icons/xiamifm.png', 'icons/xianyu.png', 'icons/xunlei.png', 
+      'icons/yd10086.png', 'icons/yddict.png', 'icons/ydedu.png',
+      'icons/ydnote.png', 'icons/ydtranslate.png', 'icons/youku.png',
+      'icons/youtube.png', 'icons/yuanfudao.png', 'icons/yuansolar.png',
+      'icons/yuantiku.png', 'icons/yyb.png', 'icons/zhihu.png', 
+      'icons/zxing.png',
+    ];
+
+    function shuffle(arr){
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+
+    function getIconOrder(){
+      const cached = sessionStorage.getItem(STORAGE_KEY);
+      if (cached){
+        try { return JSON.parse(cached); } catch(e){}
+      }
+      const order = shuffle(ICONS);
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(order));
+      return order;
+    }
+
+    function renderPage(page=1){
+      const grid = document.querySelector(GRID_SELECTOR);
+      if(!grid) return;
+
+      const order = getIconOrder();
+      const total = order.length;
+      const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      page = Math.min(Math.max(1, page), totalPages);
+
+      const start = (page-1)*PAGE_SIZE;
+      const slice = order.slice(start, start + PAGE_SIZE);
+
+      grid.innerHTML = slice.map(src => (
+        `<div class="tile"><img src="${src}" alt="" loading="lazy"></div>`
+      )).join('');
+
+      renderPager(page, totalPages);
+
+      const url = new URL(location);
+      url.searchParams.set('page', String(page));
+      history.replaceState(null, '', url);
+    }
+
+    function renderPager(page, totalPages){
+      let pager = document.querySelector('.pager');
+      if (!pager){
+        pager = document.createElement('nav');
+        pager.className = 'pager';
+        document.querySelector('.stage')?.appendChild(pager);
+      }
+      pager.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++){
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'dot' + (i === page ? ' active' : '');
+        dot.setAttribute('aria-label', `Go to page ${i}`);
+        if (i === page) dot.setAttribute('aria-current', 'page');
+        dot.onclick = () => renderPage(i);
+        pager.appendChild(dot);
+      }
+    }
+
+    function init(){
+      const url = new URL(location);
+      const p = parseInt(url.searchParams.get('page')||'1',10);
+      renderPage(isNaN(p)?1:p);
+      window.addEventListener('popstate', ()=>{
+        const url2 = new URL(location);
+        const p2 = parseInt(url2.searchParams.get('page')||'1',10);
+        renderPage(isNaN(p2)?1:p2);
+      });
+    }
+    init();
+  </script>
 </body>
 </html>
