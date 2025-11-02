@@ -249,9 +249,12 @@
     }
 
     function renderPager(page, totalPages){
-      const pager = document.querySelector('.pager');
-      if (!pager) return;
-    
+      let pager = document.querySelector('.pager');
+      if (!pager){
+        pager = document.createElement('nav');
+        pager.className = 'pager';
+        document.querySelector('.stage')?.appendChild(pager);
+      }
       pager.innerHTML = '';
       for (let i = 1; i <= totalPages; i++){
         const dot = document.createElement('button');
