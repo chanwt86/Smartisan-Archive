@@ -229,6 +229,10 @@
       .pager{
         margin: 0 auto 20px !important;
       }
+      .pager .jump{
+        font-size: 12px;
+        padding: 0 6px;
+      }
   }
   </style>
 </head>
@@ -273,44 +277,34 @@
 
 
   function renderPager(page, totalPages){
-    const pager = document.querySelector('.pager');
-    if (!pager) return;
+      const pager = document.querySelector('.pager');
+      if (!pager) return;
+      pager.style.display = totalPages > 1 ? 'flex' : 'none';
+      pager.innerHTML = '';
 
-    pager.style.display = totalPages > 1 ? 'flex' : 'none';
-    pager.innerHTML = '';
+      const BLOCK = 10;
+      const blockStart = Math.floor((page - 1) / BLOCK) * BLOCK + 1;
+      const blockEnd   = Math.min(blockStart + BLOCK - 1, totalPages);
 
-    const isNarrow = window.innerWidth <= 768;
-    const prevLabel = isNarrow ? 'Prev 10' : 'Prev 10 Pages';
-    const nextLabel = isNarrow ? 'Next 10' : 'Next 10 Pages';
+      const mkJump = (text, go, disabled)=>{
+        const b=document.createElement('button');
+        b.type='button'; b.className='jump'; b.textContent=text; b.disabled=disabled;
+        if(!disabled) b.onclick=()=>renderPage(go);
+        return b;
+      };
+      pager.appendChild(mkJump('Prev 10 Pages', blockStart - BLOCK, blockStart === 1));
 
-    const BLOCK = 10;
-    const blockStart = Math.floor((page - 1) / BLOCK) * BLOCK + 1;
-    const blockEnd   = Math.min(blockStart + BLOCK - 1, totalPages);
+      for(let i = blockStart; i <= blockEnd; i++){
+        const dot = document.createElement('button');
+        dot.type='button';
+        dot.className='dot' + (i === page ? ' active' : '');
+        dot.setAttribute('aria-label', `Go to page ${i}`);
+        if (i === page) dot.setAttribute('aria-current', 'page');
+        dot.onclick = ()=> renderPage(i);
+        pager.appendChild(dot);
+      }
 
-    const mkJump = (text, go, disabled, aria) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'jump';
-      b.textContent = text;
-      b.disabled = disabled;
-      b.setAttribute('aria-label', aria || text);
-      if (!disabled) b.onclick = () => renderPage(go);
-      return b;
-    };
-
-    pager.appendChild(mkJump(prevLabel, blockStart - BLOCK, blockStart === 1, 'Go to previous 10 pages'));
-
-    for (let i = blockStart; i <= blockEnd; i++){
-      const dot = document.createElement('button');
-      dot.type = 'button';
-      dot.className = 'dot' + (i === page ? ' active' : '');
-      dot.setAttribute('aria-label', `Go to page ${i}`);
-      if (i === page) dot.setAttribute('aria-current', 'page');
-      dot.onclick = () => renderPage(i);
-      pager.appendChild(dot);
-    }
-  s
-    pager.appendChild(mkJump(nextLabel, blockEnd + 1, blockEnd === totalPages, 'Go to next 10 pages'));
+      pager.appendChild(mkJump('Next 10 Pages', blockEnd + 1, blockEnd === totalPages));
     }
 
     function renderPage(page=1){
