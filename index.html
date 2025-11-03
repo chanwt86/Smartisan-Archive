@@ -31,6 +31,7 @@
       gap:12px;
       padding:0 50px;
       border-bottom:1px solid var(--gridline);
+      flex-wrap: wrap;
     }
     .logo{
       width:32px;
@@ -53,6 +54,17 @@
       font-weight:600;
       letter-spacing:.2px;
     }
+
+    .filters{margin-left:auto;display:flex;gap:10px}
+    .filters .btn{
+      height:30px;padding:0 12px;border-radius:8px;border:1px solid #3a3f46;
+      background:#1a1d22;color:#cfd3d7;font-size:13px;cursor:pointer;opacity:.9;
+    }
+    .filters .btn:hover{opacity:1}
+    .filters .btn.active{
+      color:#111;background:#eaeaea;border-color:#eaeaea;box-shadow:0 0 0 3px rgba(234,234,234,.12) inset;
+    }
+
     .grid{
       display:grid;
       grid-template-columns: repeat(6, var(--tile-size));
@@ -83,7 +95,7 @@
     .grid .tile:nth-child(18) { background:#43454a; }
 
     .tile{
-      width: var(--tile-w);
+      width: 100%;
       aspect-ratio: var(--ratio-w) / var(--ratio-h);
       border: 1px solid var(--gridline);
       border-left:0;
@@ -106,6 +118,11 @@
       object-fit: contain;
       image-rendering: auto;
       filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.69));
+      transition: transform .18s cubic-bezier(.3,0,.2,1), filter .18s cubic-bezier(.3,0,.2,1);
+    }
+    .tile:hover img{ 
+      transform: translateY(-1px); 
+      filter: drop-shadow(0px 9px 14px rgba(0,0,0,0.75)); 
     }
     .tile.is-empty:hover{ box-shadow:
       inset 0 1px 1px rgba(255,255,255,.08),
@@ -147,6 +164,19 @@
     }
     .pager .jump:hover{ opacity:1; }
     .pager .jump:disabled{ opacity:.35; cursor:default; }
+
+    @media (max-width:1200px){ .grid{ grid-template-columns: repeat(5, var(--tile-size)); } }
+    @media (max-width:992px) { .grid{ grid-template-columns: repeat(4, var(--tile-size)); } }
+    @media (max-width:768px){
+      .topbar{padding:0 16px;height:auto}
+      .brand .title{font-size:16px}
+      .filters{width:100%;justify-content:flex-end;margin-top:8px}
+      .grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); } /* 手機 3 欄 */
+    }
+    @media (max-width:460px){
+      .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } /* 小手機 2 欄（仍每頁9格，但格子更大） */
+      .filters .btn{ padding:0 10px;font-size:12px }
+    }
   </style>
 </head>
   
@@ -156,6 +186,11 @@
       <img class="logo" src="smartisan_logo.png" alt="Smartisan Logo">
       <span class="title">Smartisan Icon Archive</span>
     </a>
+
+    <div class="filters" aria-label="Filters">
+    <button type="button" class="btn" data-cat="system">System Apps</button>
+    <button type="button" class="btn" data-cat="third_party">Third-Party Apps</button>
+    </div>
   </header>
 
   <div class="wrap">
@@ -172,101 +207,148 @@
   </footer>
 
   <script>
-  const PAGE_SIZE = 18;
+  function shuffle(a){ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr }
+  function detectPageSize(){ return window.innerWidth <= 600 ? 9 : 18 }
+
   const GRID_SELECTOR = '.grid';
 
-  function shuffle(a){
-    const arr = a.slice();
-    for (let i = arr.length - 1; i > 0; i--){
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
+  let ALL_ICONS = [];          // [{path, category}, ...]
+  let ICONS = [];              // filtered
+  let currentCategory = null;  // 'system' | 'third_party' | null
+  let currentOrder = [];       // fixed order for pagination
+  let PAGE_SIZE = detectPageSize();
 
-  let ICONS = [];   // [{path, category}, …]
 
   function renderPager(page, totalPages){
-    const pager = document.querySelector('.pager');
-    if (!pager) return;
+      const pager = document.querySelector('.pager');
+      if (!pager) return;
+      pager.style.display = totalPages > 1 ? 'flex' : 'none';
+      pager.innerHTML = '';
 
-    // Hide when only 1 page
-    pager.style.display = totalPages > 1 ? 'flex' : 'none';
-    pager.innerHTML = '';
+      const BLOCK = 10;
+      const blockStart = Math.floor((page - 1) / BLOCK) * BLOCK + 1;
+      const blockEnd   = Math.min(blockStart + BLOCK - 1, totalPages);
 
-    const BLOCK = 10;
-    const blockStart = Math.floor((page - 1) / BLOCK) * BLOCK + 1;      // 1, 11, 21, ...
-    const blockEnd   = Math.min(blockStart + BLOCK - 1, totalPages);    // 10, 20, ...
+      const mkJump = (text, go, disabled)=>{
+        const b=document.createElement('button');
+        b.type='button'; b.className='jump'; b.textContent=text; b.disabled=disabled;
+        if(!disabled) b.onclick=()=>renderPage(go);
+        return b;
+      };
+      pager.appendChild(mkJump('Prev 10 Pages', blockStart - BLOCK, blockStart === 1));
 
-    // prev 10
-    const prevBlock = blockStart - BLOCK;
-    const btnPrev10 = document.createElement('button');
-    btnPrev10.type = 'button';
-    btnPrev10.className = 'jump';
-    btnPrev10.textContent = 'Prev 10 Pages';
-    btnPrev10.disabled = (prevBlock < 1);
-    if (!btnPrev10.disabled) btnPrev10.onclick = () => renderPage(prevBlock);
-    pager.appendChild(btnPrev10);
+      for(let i = blockStart; i <= blockEnd; i++){
+        const dot = document.createElement('button');
+        dot.type='button';
+        dot.className='dot' + (i === page ? ' active' : '');
+        dot.setAttribute('aria-label', `Go to page ${i}`);
+        if (i === page) dot.setAttribute('aria-current', 'page');
+        dot.onclick = ()=> renderPage(i);
+        pager.appendChild(dot);
+      }
 
-    // mid 10
-    for (let i = blockStart; i <= blockEnd; i++){
-      const dot = document.createElement('button');
-      dot.type = 'button';
-      dot.className = 'dot' + (i === page ? ' active' : '');
-      dot.setAttribute('aria-label', `Go to page ${i}`);
-      if (i === page) dot.setAttribute('aria-current', 'page');
-      dot.onclick = () => renderPage(i);
-      pager.appendChild(dot);
+      pager.appendChild(mkJump('Next 10 Pages', blockEnd + 1, blockEnd === totalPages));
     }
 
-    // next 10
-    const nextBlock = blockEnd + 1;
-    const btnNext10 = document.createElement('button');
-    btnNext10.type = 'button';
-    btnNext10.className = 'jump';
-    btnNext10.textContent = 'Next 10 Pages';
-    btnNext10.disabled = (nextBlock > totalPages);
-    if (!btnNext10.disabled) btnNext10.onclick = () => renderPage(nextBlock);
-    pager.appendChild(btnNext10);
-  }
+    function renderPage(page=1){
+      // dynamic adjust page size (phone 9 grid desktop 18)
+      const newSize = detectPageSize();
+      if (newSize !== PAGE_SIZE){ PAGE_SIZE = newSize; page = 1; }
 
-  function renderPage(page=1){
-    const grid = document.querySelector(GRID_SELECTOR);
-    if (!grid || !ICONS.length) return;
+      const grid = document.querySelector(GRID_SELECTOR);
+      if (!grid || !currentOrder.length){ grid.innerHTML=''; renderPager(1,1); return; }
 
-    // Every refresh = reshuffle
-    const order = shuffle(ICONS);
-    const total = order.length;
-    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    page = Math.min(Math.max(1, page), totalPages);
-    const start = (page-1) * PAGE_SIZE;
+      const total = currentOrder.length;
+      const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      page = Math.min(Math.max(1, page), totalPages);
+      const start = (page - 1) * PAGE_SIZE;
 
-    const tiles = [];
-    for (let i=0;i<PAGE_SIZE;i++){
-      const item = order[start + i];
-      if (item) tiles.push(`<div class="tile"><img src="${item.path}" alt="" loading="lazy"></div>`);
-      else tiles.push(`<div class="tile is-empty" aria-hidden="true"></div>`);
+      const tiles = [];
+      for (let i = 0; i < PAGE_SIZE; i++){
+        const item = currentOrder[start + i];
+        if (item){
+          tiles.push(`<div class="tile"><img src="${item.path}" alt="" loading="lazy"></div>`);
+        }else{
+          tiles.push(`<div class="tile is-empty" aria-hidden="true"></div>`);
+        }
+      }
+      grid.innerHTML = tiles.join('');
+      renderPager(page, totalPages);
+
+      const url = new URL(location);
+      if (totalPages > 1){
+        if (page > 1) url.searchParams.set('page', String(page));
+        else url.searchParams.delete('page');
+      }else{
+        url.searchParams.delete('page');
+      }
+      if (currentCategory) url.searchParams.set('category', currentCategory);
+      else url.searchParams.delete('category');
+      history.replaceState(null, '', url);
     }
-    grid.innerHTML = tiles.join('');
 
-    renderPager(page, totalPages);
-    const url = new URL(location);
-    url.searchParams.set('page', String(page));
-    history.replaceState(null, '', url);
-  }
+    function applyFilter(){
+      ICONS = currentCategory ? ALL_ICONS.filter(x => x.category === currentCategory) : ALL_ICONS;
+      currentOrder = shuffle(ICONS);
+    }
 
-  async function init(){
-    const res = await fetch('data/icons.json', { cache: 'no-cache' });
-    ICONS = await res.json();             
-    const p = parseInt(new URL(location).searchParams.get('page') || '1', 10);
-    renderPage(isNaN(p) ? 1 : p);
+    function setFilter(cat){
+      currentCategory = (currentCategory === cat) ? null : cat;
+      document.querySelectorAll('.filters .btn').forEach(btn=>{
+        btn.classList.toggle('active', btn.dataset.cat === currentCategory);
+      });
+      applyFilter();
+      renderPage(1);
+    }
 
-    window.addEventListener('popstate', () => {
-      const p2 = parseInt(new URL(location).searchParams.get('page') || '1', 10);
-      renderPage(isNaN(p2) ? 1 : p2);
-    });
-  }
-  init();
+    // ===== Init =====
+    async function init(){
+      const res = await fetch('data/icons.json', { cache:'no-cache' });
+      ALL_ICONS = await res.json();
+
+
+      const q = new URL(location).searchParams;
+      const cat = q.get('category');
+      if (cat === 'system' || cat === 'third_party') currentCategory = cat;
+
+      applyFilter(); 
+      const p = parseInt(q.get('page') || '1', 10);
+      renderPage(isNaN(p)?1:p);
+
+
+      document.querySelectorAll('.filters .btn').forEach(btn=>{
+        btn.addEventListener('click', ()=> setFilter(btn.dataset.cat));
+      });
+      document.getElementById('brand-home')?.addEventListener('click',(e)=>{
+        e.preventDefault();
+        currentCategory = null;
+        document.querySelectorAll('.filters .btn').forEach(b=>b.classList.remove('active'));
+        applyFilter();
+        renderPage(1);
+      });
+
+      window.addEventListener('popstate', ()=>{
+        const q2 = new URL(location).searchParams;
+        const cat2 = q2.get('category');
+        currentCategory = (cat2 === 'system' || cat2 === 'third_party') ? cat2 : null;
+        document.querySelectorAll('.filters .btn').forEach(btn=>{
+          btn.classList.toggle('active', btn.dataset.cat === currentCategory);
+        });
+        applyFilter();
+        const p2 = parseInt(q2.get('page') || '1', 10);
+        renderPage(isNaN(p2)?1:p2);
+      });
+
+
+      window.addEventListener('resize', ()=>{
+        const newSize = detectPageSize();
+        if (newSize !== PAGE_SIZE){
+          PAGE_SIZE = newSize;
+          renderPage(1);
+        }
+      });
+    }
+    init();
   </script>
 </body>
 </html>
