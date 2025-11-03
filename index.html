@@ -118,6 +118,13 @@
       background:#eaeaea; border-color:#eaeaea; opacity:1;
       box-shadow:0 0 0 3px rgba(234,234,234,.12);
     }
+    .pager .jump{
+      height:22px; padding:0 8px;
+      border:1px solid #3a3f46; background:#1a1d22; color:#eaeaea;
+      border-radius:6px; font-size:12px; cursor:pointer; opacity:.85;
+    }
+    .pager .jump:hover{ opacity:1; }
+    .pager .jump:disabled{ opacity:.35; cursor:default; }
   </style>
 </head>
   
@@ -160,16 +167,45 @@
   function renderPager(page, totalPages){
     const pager = document.querySelector('.pager');
     if (!pager) return;
+
+    // 只有 1 頁就隱藏
+    pager.style.display = totalPages > 1 ? 'flex' : 'none';
     pager.innerHTML = '';
-    for (let i=1; i<=totalPages; i++){
+
+    const BLOCK = 10;
+    const blockStart = Math.floor((page - 1) / BLOCK) * BLOCK + 1;      // 1, 11, 21, ...
+    const blockEnd   = Math.min(blockStart + BLOCK - 1, totalPages);    // 10, 20, ...
+
+    // prev 10
+    const prevBlock = blockStart - BLOCK;
+    const btnPrev10 = document.createElement('button');
+    btnPrev10.type = 'button';
+    btnPrev10.className = 'jump';
+    btnPrev10.textContent = 'Prev 10 Pages';
+    btnPrev10.disabled = (prevBlock < 1);
+    if (!btnPrev10.disabled) btnPrev10.onclick = () => renderPage(prevBlock);
+    pager.appendChild(btnPrev10);
+
+    // mid 10
+    for (let i = blockStart; i <= blockEnd; i++){
       const dot = document.createElement('button');
       dot.type = 'button';
-      dot.className = 'dot' + (i===page ? ' active' : '');
+      dot.className = 'dot' + (i === page ? ' active' : '');
       dot.setAttribute('aria-label', `Go to page ${i}`);
-      if (i===page) dot.setAttribute('aria-current', 'page');
-      dot.onclick = ()=> renderPage(i);
+      if (i === page) dot.setAttribute('aria-current', 'page');
+      dot.onclick = () => renderPage(i);
       pager.appendChild(dot);
     }
+
+    // next 10
+    const nextBlock = blockEnd + 1;
+    const btnNext10 = document.createElement('button');
+    btnNext10.type = 'button';
+    btnNext10.className = 'jump';
+    btnNext10.textContent = 'Next 10 Pages';
+    btnNext10.disabled = (nextBlock > totalPages);
+    if (!btnNext10.disabled) btnNext10.onclick = () => renderPage(nextBlock);
+    pager.appendChild(btnNext10);
   }
 
   function renderPage(page=1){
