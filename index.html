@@ -57,13 +57,33 @@
       grid-template-columns: repeat(6, var(--tile-size));
       gap: var(--gap);
       padding: 1px;
-      margin: 24px auto 48px;
+      margin: 40px auto;
       justify-content:center;
     }
+    .grid .tile:nth-child(1)  { background:#3c3e43; }
+    .grid .tile:nth-child(2)  { background:#43454a; }
+    .grid .tile:nth-child(3)  { background:#43454a; }
+    .grid .tile:nth-child(4)  { background:#33353a; }
+    .grid .tile:nth-child(5)  { background:#34363c; }
+    .grid .tile:nth-child(6)  { background:#303136; }
+
+    .grid .tile:nth-child(7)  { background:#3a3c41; }
+    .grid .tile:nth-child(8)  { background:#35383b; }
+    .grid .tile:nth-child(9)  { background:#3f4146; }
+    .grid .tile:nth-child(10) { background:#3a3c41; }
+    .grid .tile:nth-child(11) { background:#35383b; }
+    .grid .tile:nth-child(12) { background:#3f4146; }
+
+    .grid .tile:nth-child(13) { background:#33353a; }
+    .grid .tile:nth-child(14) { background:#34363c; }
+    .grid .tile:nth-child(15) { background:#303136; }
+    .grid .tile:nth-child(16) { background:#3c3e43; }
+    .grid .tile:nth-child(17) { background:#43454a; }
+    .grid .tile:nth-child(18) { background:#43454a; }
+    
     .tile{
       width: var(--tile-w);
       aspect-ratio: var(--ratio-w) / var(--ratio-h);
-      background: var(--tile);
       border: 1px solid var(--gridline);
       border-left:0;
       border-top:0;
@@ -132,7 +152,7 @@
   <header class="topbar">
     <a class="brand" href="/">
       <img class="logo" src="smartisan_logo.png" alt="Smartisan Logo">
-      <span class="title">smartisan icon archive</span>
+      <span class="title">Smartisan Icon Archive</span>
     </a>
   </header>
 
@@ -168,7 +188,7 @@
     const pager = document.querySelector('.pager');
     if (!pager) return;
 
-    // 只有 1 頁就隱藏
+    // Hide when only 1 page
     pager.style.display = totalPages > 1 ? 'flex' : 'none';
     pager.innerHTML = '';
 
