@@ -253,8 +253,8 @@
         gap:12px;
       }
 
-      .search{ width:100%; margin-left:0; display:flex; justify-content:center; }
-      .search input{ width:100%; max-width:420px; }
+      .search{ width:80%; margin-left:0; display:flex; justify-content:center; }
+      .search input{ width:80%; max-width:260px; }
 
 
       /* Grid: Force 3 columns ALWAYS on mobile */
@@ -272,6 +272,7 @@
       /* Pager closer to grid */
       .pager{
         flex-direction:column;
+        align-items: center;
         gap:12px;
       }
 
@@ -285,15 +286,14 @@
       .pager-prev-next{
         display:flex;
         justify-content:center;
-        gap:20px;
+        gap:14px;
         width:100%;
         order:2; 
       }
 
       .pager .jump{
-        height:26px;
-        font-size:12px;
-        padding:0 8px;
+        min-width: 110px;
+        text-align: center;
       }
   }
   </style>
@@ -382,41 +382,45 @@
 
       const dotsWrap = document.createElement('div');
       dotsWrap.className = 'pager-dots';
-
       for (let i = blockStart; i <= blockEnd; i++){
         const dot = document.createElement('button');
         dot.type = 'button';
         dot.className = 'dot' + (i === page ? ' active' : '');
         dot.setAttribute('aria-label', `Go to page ${i}`);
         if (i === page) dot.setAttribute('aria-current', 'page');
-        dot.onclick = ()=> renderPage(i);
+        dot.onclick = () => renderPage(i);
         dotsWrap.appendChild(dot);
       }
 
-      // Prev / Next
-      const isNarrow  = window.innerWidth <= 768;
-      const prevLabel = isNarrow ? 'Prev 10' : 'Prev 10 Pages';
-      const nextLabel = isNarrow ? 'Next 10' : 'Next 10 Pages';
+      const row = document.createElement('div');
+      row.className = 'pager-prev-next';
+
+      const mkJump = (text, go, disabled) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'jump';
+        b.textContent = text;
+        b.disabled = disabled;
+        if (!disabled) b.onclick = () => renderPage(go);
+        return b;
+      };
+
       const prevBlock = blockStart - BLOCK;
       const nextBlock = blockEnd + 1;
+      const btnPrev10 = mkJump(window.innerWidth <= 768 ? 'Prev 10' : 'Prev 10 Pages', prevBlock, blockStart === 1);
+      const btnNext10 = mkJump(window.innerWidth <= 768 ? 'Next 10' : 'Next 10 Pages', nextBlock, blockEnd === totalPages);
 
-      const btnPrev = document.createElement('button');
-      btnPrev.type = 'button';
-      btnPrev.className = 'jump';
-      btnPrev.textContent = prevLabel;
-      btnPrev.disabled = (prevBlock < 1);
-      if (!btnPrev.disabled) btnPrev.onclick = ()=> renderPage(prevBlock);
+      row.appendChild(btnPrev10);
+      row.appendChild(btnNext10);
 
-      const btnNext = document.createElement('button');
-      btnNext.type = 'button';
-      btnNext.className = 'jump';
-      btnNext.textContent = nextLabel;
-      btnNext.disabled = (nextBlock > totalPages);
-      if (!btnNext.disabled) btnNext.onclick = ()=> renderPage(nextBlock);
-
-      pager.appendChild(btnPrev);
-      pager.appendChild(dotsWrap);
-      pager.appendChild(btnNext);
+      if (window.innerWidth > 768){
+        pager.appendChild(btnPrev10);
+        pager.appendChild(dotsWrap);
+        pager.appendChild(btnNext10);
+      } else {
+        pager.appendChild(dotsWrap);
+        pager.appendChild(row);
+      }
     }
 
     // ========== Grid ==========
