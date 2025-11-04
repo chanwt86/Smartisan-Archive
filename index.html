@@ -229,6 +229,14 @@
         font-size: 13px !important;
       }
 
+      .actions{
+        margin-left:0; 
+        flex-direction:column;
+        align-items:center;
+        width:100%;
+        gap:12px;
+      }
+
       .search{ width:100%; margin-left:0; display:flex; justify-content:center; }
       .search input{ width:100%; max-width:420px; }
 
@@ -285,15 +293,18 @@
       <span class="title">Smartisan Icon Archive</span>
     </a>
 
-    <div class="filters" aria-label="Filters">
-    <button type="button" class="btn" data-cat="system">System Apps</button>
-    <button type="button" class="btn" data-cat="third_party">Third-Party Apps</button>
-    </div>
-    <div class="search">
-      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <div class="actions">
+      <div class="filters" aria-label="Filters">
+        <button type="button" class="btn" data-cat="system">System Apps</button>
+        <button type="button" class="btn" data-cat="third_party">Third-Party Apps</button>
+      </div>
+
+      <div class="search">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-1.06 1.06l.27.28v.79l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" fill="currentColor"/>
         </svg>
         <input type="search" id="search" placeholder="Search" aria-label="Search icons">
+      </div>
     </div>
   </header>
 
@@ -363,45 +374,43 @@
       const blockStart = Math.floor((page - 1) / BLOCK) * BLOCK + 1;
       const blockEnd   = Math.min(blockStart + BLOCK - 1, totalPages);
 
-
       const dotsWrap = document.createElement('div');
       dotsWrap.className = 'pager-dots';
 
-      const btnWrap = document.createElement('div');
-      btnWrap.className = 'pager-prev-next';
-
-      for(let i = blockStart; i <= blockEnd; i++){
+      for (let i = blockStart; i <= blockEnd; i++){
         const dot = document.createElement('button');
-        dot.type='button';
-        dot.className='dot' + (i === page ? ' active' : '');
+        dot.type = 'button';
+        dot.className = 'dot' + (i === page ? ' active' : '');
         dot.setAttribute('aria-label', `Go to page ${i}`);
         if (i === page) dot.setAttribute('aria-current', 'page');
         dot.onclick = ()=> renderPage(i);
         dotsWrap.appendChild(dot);
       }
 
+      // Prev / Next
       const isNarrow  = window.innerWidth <= 768;
       const prevLabel = isNarrow ? 'Prev 10' : 'Prev 10 Pages';
       const nextLabel = isNarrow ? 'Next 10' : 'Next 10 Pages';
-
-      const mkJump = (text, go, disabled, aria) => {
-        const b=document.createElement('button');
-        b.type='button'; b.className='jump'; b.textContent=text; b.disabled=disabled;
-        b.setAttribute('aria-label', aria || text);
-        if(!disabled) b.onclick=()=>renderPage(go);
-        return b;
-      };
-
       const prevBlock = blockStart - BLOCK;
       const nextBlock = blockEnd + 1;
 
-      jumpsWrap.appendChild(mkJump(prevLabel, prevBlock, blockStart===1, 'Go to previous 10 pages'));
-      jumpsWrap.appendChild(mkJump(nextLabel, nextBlock, blockEnd===totalPages, 'Go to next 10 pages'));
+      const btnPrev = document.createElement('button');
+      btnPrev.type = 'button';
+      btnPrev.className = 'jump';
+      btnPrev.textContent = prevLabel;
+      btnPrev.disabled = (prevBlock < 1);
+      if (!btnPrev.disabled) btnPrev.onclick = ()=> renderPage(prevBlock);
 
-      pager.innerHTML = '';
-      pager.appendChild(btnPrev10);
+      const btnNext = document.createElement('button');
+      btnNext.type = 'button';
+      btnNext.className = 'jump';
+      btnNext.textContent = nextLabel;
+      btnNext.disabled = (nextBlock > totalPages);
+      if (!btnNext.disabled) btnNext.onclick = ()=> renderPage(nextBlock);
+
+      pager.appendChild(btnPrev);
       pager.appendChild(dotsWrap);
-      pager.appendChild(btnNext10);
+      pager.appendChild(btnNext);
     }
 
     // ========== Grid ==========
