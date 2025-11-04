@@ -364,8 +364,11 @@
       const blockEnd   = Math.min(blockStart + BLOCK - 1, totalPages);
 
 
-      const dotsWrap  = document.createElement('div'); dotsWrap.className = 'dots';
-      const jumpsWrap = document.createElement('div'); jumpsWrap.className = 'jumps';
+      const dotsWrap = document.createElement('div');
+      dotsWrap.className = 'pager-dots';
+
+      const btnWrap = document.createElement('div');
+      btnWrap.className = 'pager-prev-next';
 
       for(let i = blockStart; i <= blockEnd; i++){
         const dot = document.createElement('button');
