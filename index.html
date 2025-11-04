@@ -182,6 +182,11 @@
       background:#eaeaea; border-color:#eaeaea; opacity:1;
       box-shadow:0 0 0 3px rgba(234,234,234,.12);
     }
+    .pager-dots{
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+    }
     .pager .jump{
       height:22px; padding:0 8px;
       border:1px solid #3a3f46; background:#1a1d22; color:#eaeaea;
@@ -205,6 +210,7 @@
       }
 
       .brand{
+        order:1 !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
@@ -239,6 +245,7 @@
       }
 
       .actions{
+        order: 2 !important;
         margin-left:0; 
         flex-direction:column;
         align-items:center;
@@ -249,9 +256,6 @@
       .search{ width:100%; margin-left:0; display:flex; justify-content:center; }
       .search input{ width:100%; max-width:420px; }
 
-      .brand{ order:1; }
-      .filters{ order:2; justify-content:center; }
-      .search{ order:3; }
 
       /* Grid: Force 3 columns ALWAYS on mobile */
       .grid{
@@ -350,25 +354,18 @@
       const searchEl = document.getElementById('search');
       const kw = (searchEl ? searchEl.value : '').trim().toLowerCase();
 
-
-      FILTERED = ALL_ICONS.filter(i => {
-        if (currentCategory && i.category !== currentCategory) return false;
-        return true;
-      });
+      FILTERED = ALL_ICONS.filter(i => !currentCategory || i.category === currentCategory);
 
       if (kw){
-        FILTERED = FILTERED.filter(i => {
-          const filename = i.path.split('/').pop().toLowerCase();
-          return filename.includes(kw);
+        FILTERED = FILTERED.filter(i => i.path.split('/').pop().toLowerCase().includes(kw));
+        currentOrder = FILTERED.slice().sort((a,b)=>{
+          const fa = a.path.split('/').pop().toLowerCase();
+          const fb = b.path.split('/').pop().toLowerCase();
+          return fa.localeCompare(fb);
         });
+      }else{
+        currentOrder = shuffle(FILTERED);
       }
-
-
-      currentOrder = FILTERED.slice().sort((a,b)=>{
-        const fa = a.path.split('/').pop().toLowerCase();
-        const fb = b.path.split('/').pop().toLowerCase();
-        return fa.localeCompare(fb);
-      });
     }
 
     // ========== Pager ==========
