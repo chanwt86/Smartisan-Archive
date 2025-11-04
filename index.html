@@ -65,6 +65,25 @@
       color:#111;background:#eaeaea;border-color:#eaeaea;box-shadow:0 0 0 3px rgba(234,234,234,.12) inset;
     }
 
+    .search{ position:relative; margin-left:auto; }
+    .search input{
+      height:32px; width:200px;
+      padding:0 10px 0 36px;
+      border-radius:8px;
+      border:1px solid #3a3f46;
+      background:#1a1d22; color:#eaeaea;
+      font-size:14px; outline:none; transition:all .15s;
+    }
+    .search input::placeholder{ color:#6b6e74; }
+    .search input:focus{
+      border-color:#eaeaea; background:#22252b;
+      box-shadow:0 0 0 2px rgba(234,234,234,.12);
+    }
+    .search-icon{
+      position:absolute; left:10px; top:50%; transform:translateY(-50%);
+      width:16px; height:16px; color:#8b9096; pointer-events:none;
+    }
+
     .grid{
       display:grid;
       grid-template-columns: repeat(6, var(--tile-size));
@@ -119,10 +138,6 @@
       image-rendering: auto;
       filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.69));
       transition: transform .18s cubic-bezier(.3,0,.2,1), filter .18s cubic-bezier(.3,0,.2,1);
-    }
-    .tile:hover img{ 
-      transform: translateY(-1px); 
-      filter: drop-shadow(0px 9px 14px rgba(0,0,0,0.75)); 
     }
     .tile.is-empty:hover{ box-shadow:
       inset 0 1px 1px rgba(255,255,255,.08),
@@ -213,6 +228,13 @@
         font-size: 13px !important;
       }
 
+      .search{ width:100%; margin-left:0; display:flex; justify-content:center; }
+      .search input{ width:100%; max-width:420px; }
+
+      .brand{ order:1; }
+      .filters{ order:2; justify-content:center; }
+      .search{ order:3; }
+
       /* Grid: Force 3 columns ALWAYS on mobile */
       .grid{
         grid-template-columns: repeat(3, 1fr) !important;
@@ -248,6 +270,12 @@
     <button type="button" class="btn" data-cat="system">System Apps</button>
     <button type="button" class="btn" data-cat="third_party">Third-Party Apps</button>
     </div>
+    <div class="search">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-1.06 1.06l.27.28v.79l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" fill="currentColor"/>
+        </svg>
+        <input type="search" id="search" placeholder="Search" aria-label="Search icons">
+    </div>
   </header>
 
   <div class="wrap">
@@ -264,21 +292,51 @@
   </footer>
 
   <script>
-  function shuffle(a){ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr }
-  function detectPageSize(){ return window.innerWidth <= 600 ? 9 : 18 }
+    // ========== Helpers ==========
+    function shuffle(a){ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr }
+    function detectPageSize(){ return window.innerWidth <= 600 ? 9 : 18 }
 
-  const GRID_SELECTOR = '.grid';
+    // ========== State ==========
+    const GRID_SELECTOR = '.grid';
 
-  let ALL_ICONS = [];          // [{path, category}, ...]
-  let ICONS = [];              // filtered
-  let currentCategory = null;  // 'system' | 'third_party' | null
-  let currentOrder = [];       // fixed order for pagination
-  let PAGE_SIZE = detectPageSize();
+    let ALL_ICONS = []; 
+    let currentCategory = null;
+    let PAGE_SIZE = detectPageSize();
+
+    let FILTERED = [];
+    let currentOrder = []; 
+
+    // ========== Filtering (by category + search filename) ==========
+    function applyFilters(){
+      const searchEl = document.getElementById('search');
+      const kw = (searchEl ? searchEl.value : '').trim().toLowerCase();
 
 
-  function renderPager(page, totalPages){
+      FILTERED = ALL_ICONS.filter(i => {
+        if (currentCategory && i.category !== currentCategory) return false;
+        return true;
+      });
+
+      if (kw){
+        FILTERED = FILTERED.filter(i => {
+          const filename = i.path.split('/').pop().toLowerCase();
+          return filename.includes(kw);
+        });
+      }
+
+
+      currentOrder = FILTERED.slice().sort((a,b)=>{
+        const fa = a.path.split('/').pop().toLowerCase();
+        const fb = b.path.split('/').pop().toLowerCase();
+        return fa.localeCompare(fb);
+      });
+    }
+
+    // ========== Pager ==========
+    function renderPager(page, totalPages){
       const pager = document.querySelector('.pager');
       if (!pager) return;
+
       pager.style.display = totalPages > 1 ? 'flex' : 'none';
       pager.innerHTML = '';
 
@@ -286,13 +344,9 @@
       const blockStart = Math.floor((page - 1) / BLOCK) * BLOCK + 1;
       const blockEnd   = Math.min(blockStart + BLOCK - 1, totalPages);
 
-      const mkJump = (text, go, disabled)=>{
-        const b=document.createElement('button');
-        b.type='button'; b.className='jump'; b.textContent=text; b.disabled=disabled;
-        if(!disabled) b.onclick=()=>renderPage(go);
-        return b;
-      };
-      pager.appendChild(mkJump('Prev 10 Pages', blockStart - BLOCK, blockStart === 1));
+
+      const dotsWrap  = document.createElement('div'); dotsWrap.className = 'dots';
+      const jumpsWrap = document.createElement('div'); jumpsWrap.className = 'jumps';
 
       for(let i = blockStart; i <= blockEnd; i++){
         const dot = document.createElement('button');
@@ -301,19 +355,41 @@
         dot.setAttribute('aria-label', `Go to page ${i}`);
         if (i === page) dot.setAttribute('aria-current', 'page');
         dot.onclick = ()=> renderPage(i);
-        pager.appendChild(dot);
+        dotsWrap.appendChild(dot);
       }
 
-      pager.appendChild(mkJump('Next 10 Pages', blockEnd + 1, blockEnd === totalPages));
+      const isNarrow  = window.innerWidth <= 768;
+      const prevLabel = isNarrow ? 'Prev 10' : 'Prev 10 Pages';
+      const nextLabel = isNarrow ? 'Next 10' : 'Next 10 Pages';
+
+      const mkJump = (text, go, disabled, aria) => {
+        const b=document.createElement('button');
+        b.type='button'; b.className='jump'; b.textContent=text; b.disabled=disabled;
+        b.setAttribute('aria-label', aria || text);
+        if(!disabled) b.onclick=()=>renderPage(go);
+        return b;
+      };
+
+      const prevBlock = blockStart - BLOCK;
+      const nextBlock = blockEnd + 1;
+
+      jumpsWrap.appendChild(mkJump(prevLabel, prevBlock, blockStart===1, 'Go to previous 10 pages'));
+      jumpsWrap.appendChild(mkJump(nextLabel, nextBlock, blockEnd===totalPages, 'Go to next 10 pages'));
+
+      pager.appendChild(dotsWrap);
+      pager.appendChild(jumpsWrap);
     }
 
+    // ========== Grid ==========
     function renderPage(page=1){
-      // dynamic adjust page size (phone 9 grid desktop 18)
       const newSize = detectPageSize();
       if (newSize !== PAGE_SIZE){ PAGE_SIZE = newSize; page = 1; }
 
+
+      applyFilters();
+
       const grid = document.querySelector(GRID_SELECTOR);
-      if (!grid || !currentOrder.length){ grid.innerHTML=''; renderPager(1,1); return; }
+      if (!grid){ return; }
 
       const total = currentOrder.length;
       const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -324,12 +400,14 @@
       for (let i = 0; i < PAGE_SIZE; i++){
         const item = currentOrder[start + i];
         if (item){
-          tiles.push(`<div class="tile"><img src="${item.path}" alt="" loading="lazy"></div>`);
+          const alt = item.path.split('/').pop();
+          tiles.push(`<div class="tile"><img src="${item.path}" alt="${alt}" loading="lazy"></div>`);
         }else{
           tiles.push(`<div class="tile is-empty" aria-hidden="true"></div>`);
         }
       }
       grid.innerHTML = tiles.join('');
+
       renderPager(page, totalPages);
 
       const url = new URL(location);
@@ -344,45 +422,47 @@
       history.replaceState(null, '', url);
     }
 
-    function applyFilter(){
-      ICONS = currentCategory ? ALL_ICONS.filter(x => x.category === currentCategory) : ALL_ICONS;
-      currentOrder = shuffle(ICONS);
-    }
-
+    // ========== Category ==========
     function setFilter(cat){
-      currentCategory = (currentCategory === cat) ? null : cat;
+      currentCategory = (currentCategory === cat) ? null : cat; 
       document.querySelectorAll('.filters .btn').forEach(btn=>{
         btn.classList.toggle('active', btn.dataset.cat === currentCategory);
       });
-      applyFilter();
       renderPage(1);
     }
 
-    // ===== Init =====
+    // ========== Init ==========
     async function init(){
       const res = await fetch('data/icons.json', { cache:'no-cache' });
       ALL_ICONS = await res.json();
-
 
       const q = new URL(location).searchParams;
       const cat = q.get('category');
       if (cat === 'system' || cat === 'third_party') currentCategory = cat;
 
-      applyFilter(); 
-      const p = parseInt(q.get('page') || '1', 10);
-      renderPage(isNaN(p)?1:p);
-
-
       document.querySelectorAll('.filters .btn').forEach(btn=>{
         btn.addEventListener('click', ()=> setFilter(btn.dataset.cat));
       });
+
       document.getElementById('brand-home')?.addEventListener('click',(e)=>{
         e.preventDefault();
         currentCategory = null;
         document.querySelectorAll('.filters .btn').forEach(b=>b.classList.remove('active'));
-        applyFilter();
+
+        const s = document.getElementById('search'); if (s) s.value = '';
         renderPage(1);
+        history.replaceState(null, '', location.pathname); // 清掉 ?page & ?category
       });
+
+
+      const searchEl = document.getElementById('search');
+      if (searchEl){
+        searchEl.addEventListener('input', ()=> renderPage(1));
+        searchEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); renderPage(1); } });
+      }
+
+      const p = parseInt(q.get('page') || '1', 10);
+      renderPage(isNaN(p)?1:p);
 
       window.addEventListener('popstate', ()=>{
         const q2 = new URL(location).searchParams;
@@ -391,11 +471,9 @@
         document.querySelectorAll('.filters .btn').forEach(btn=>{
           btn.classList.toggle('active', btn.dataset.cat === currentCategory);
         });
-        applyFilter();
         const p2 = parseInt(q2.get('page') || '1', 10);
         renderPage(isNaN(p2)?1:p2);
       });
-
 
       window.addEventListener('resize', ()=>{
         const newSize = detectPageSize();
