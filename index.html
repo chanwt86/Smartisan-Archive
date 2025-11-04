@@ -28,6 +28,7 @@
       background:#101214;
       display:flex;
       align-items:center;
+      justify-content: space-between;
       gap:12px;
       padding:0 50px;
       border-bottom:1px solid var(--gridline);
@@ -249,11 +250,29 @@
 
       /* Pager closer to grid */
       .pager{
-        margin: 0 auto 20px !important;
+        flex-direction:column;
+        gap:12px;
       }
+
+      .pager-dots{
+        display:flex;
+        justify-content:center;
+        gap:12px; 
+        order:1;  
+      }
+
+      .pager-prev-next{
+        display:flex;
+        justify-content:center;
+        gap:20px;
+        width:100%;
+        order:2; 
+      }
+
       .pager .jump{
-        font-size: 12px;
-        padding: 0 6px;
+        height:26px;
+        font-size:12px;
+        padding:0 8px;
       }
   }
   </style>
@@ -376,8 +395,10 @@
       jumpsWrap.appendChild(mkJump(prevLabel, prevBlock, blockStart===1, 'Go to previous 10 pages'));
       jumpsWrap.appendChild(mkJump(nextLabel, nextBlock, blockEnd===totalPages, 'Go to next 10 pages'));
 
+      pager.innerHTML = '';
+      pager.appendChild(btnPrev10);
       pager.appendChild(dotsWrap);
-      pager.appendChild(jumpsWrap);
+      pager.appendChild(btnNext10);
     }
 
     // ========== Grid ==========
