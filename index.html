@@ -32,7 +32,7 @@
       gap:12px;
       padding:0 50px;
       border-bottom:1px solid var(--gridline);
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
     .logo{
       width:32px;
@@ -54,6 +54,14 @@
       font-size:18px;
       font-weight:600;
       letter-spacing:.2px;
+    }
+
+    .actions{
+      margin-left:auto;            
+      display:flex;
+      align-items:center;
+      gap:16px;
+      flex-wrap:nowrap;    
     }
 
     .filters{margin-left:auto;display:flex;gap:10px}
@@ -167,6 +175,7 @@
       border:1px solid #3a3f46;
       background:#1a1d22;
       opacity:.55; padding:0; cursor:pointer;
+      gap: 14px;
     }
     .pager .dot:hover{ opacity:.9; }
     .pager .dot.active{
