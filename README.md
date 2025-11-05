@@ -4,7 +4,7 @@
 Smartisan Archive is a comprehensive historical archive dedicated to collecting, organizing, and preserving the legacy of the former smartphone brand Smartisan — including its redesigned app icons, unique UI aesthetics, industrial design, software experiences, hardware products, marketing materials, and the stories of the people behind it.
 
 ## Website
-Icon Archive http://chanwt86.github.io/Smartisan-Archive/
+Icon Archive(http://steve-w-chan.github.io/Smartisan-Archive/)
 
 ## Disclaimer
 Smartisan is a registered trademark of Smartisan Technology Co.,Ltd.
